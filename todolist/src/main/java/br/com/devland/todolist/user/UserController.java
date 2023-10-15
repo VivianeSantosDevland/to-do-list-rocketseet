@@ -2,6 +2,7 @@ package br.com.devland.todolist.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,6 +35,6 @@ public class UserController {
 
     var userCreated = this.userRepository.save(userModel);
 
-    return ResponseEntity.status(HttpStatus.CREATED).body(userCreated);
+    return ResponseEntity.status(HttpStatus.OK).body(userCreated);
   }
 }
