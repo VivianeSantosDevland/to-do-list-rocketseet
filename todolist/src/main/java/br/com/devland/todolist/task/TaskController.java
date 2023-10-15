@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -58,13 +59,23 @@ public class TaskController {
   }
 
   @PutMapping("/{id}")
-  public TaskModel update(@RequestBody TaskModel taskModel, @PathVariable UUID id, HttpServletRequest request) {
-    var idUser = request.getAttribute("idUser");
+  public ResponseEntity update(@RequestBody TaskModel taskModel, @PathVariable UUID id, HttpServletRequest request) {
     var task = taskRepository.findById(id).orElse(null);
+    if (task == null) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tarefa não econtrada");
+    }
+
+    // validando se a tarefa pertence ao usuário
+    var idUser = request.getAttribute("idUser");
+    if (!task.getIdUser().equals(idUser)) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Usuário não tem permissão");
+    }
+
     Utils.copyNonNullProperty(taskModel, task);// copiando os atributos vazios
     // taskModel.setIdUser((UUID) idUser);
     // taskModel.setId(id);
-    return this.taskRepository.save(task);
+    var taskUpdated = this.taskRepository.save(task);
+    return ResponseEntity.ok().body(taskUpdated);
   }
 
 }
